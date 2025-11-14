@@ -228,7 +228,7 @@ Goal: map HTTP/TLS surface for example.com (low-noise, RoE-compliant).
 
 Passive collection (no target interaction):
 
-Fetch CT entries / crt_example.json → extract subdomains.
+Fetch CT entries / crt_example.json to extract subdomains.
 
 Search public repos for example.com references.
 
