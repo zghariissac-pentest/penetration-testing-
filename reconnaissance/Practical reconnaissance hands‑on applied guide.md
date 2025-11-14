@@ -38,7 +38,7 @@ masscan , at-scale port discovery (very noisy; use only when permitted).
 
 httprobe / httpx / tls-scan / wafw00f , fast HTTP/TLS enumeration and WAF detection.
 
-ffuf / gobuster / dirsearch — content discovery / directory brute forcing.
+ffuf / gobuster / dirsearch , content discovery / directory brute forcing.
 
 whatweb / wappalyzer / builtwith — tech fingerprinting.
 
