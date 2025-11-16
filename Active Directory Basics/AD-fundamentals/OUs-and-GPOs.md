@@ -1,66 +1,65 @@
-# LDAP vs Kerberos
+# Organizational Units (OUs) & Group Policy Objects (GPOs)
 
-Active Directory authentication and directory queries rely mainly on **LDAP** and **Kerberos**.  
-They solve different problems.
-
----
-
-## 1. What Is LDAP?
-LDAP = Lightweight Directory Access Protocol  
-Used for:
-- Querying directory objects (users, groups, OUs…)  
-- Reading attributes  
-- Writing changes (if authorized)  
-
-### LDAP Modes
-| Mode | Port | Encryption |
-|------|------|-----------|
-| LDAP | 389 | None |
-| LDAPS | 636 | TLS/SSL |
+OUs and GPOs define structure, management, and policy enforcement across an Active Directory domain.
 
 ---
 
-## 2. What Is Kerberos?
-Kerberos is the **default authentication protocol** in AD.  
-Provides:
-- Mutual authentication  
-- Ticket-based access  
-- Time-sensitive security (5-minute skew rule)
+## 1. What Are OUs?
+Organizational Units allow administrators to:
+- Organize users & computers  
+- Delegate permissions  
+- Apply group policies selectively  
+- Segment administrative boundaries  
 
-### Kerberos Components
-- **KDC** (Key Distribution Center)  
-- **AS** (Authentication Service)  
-- **TGS** (Ticket Granting Service)  
-- **TGT** (Ticket Granting Ticket)  
-
----
-
-## 3. When AD Uses LDAP vs Kerberos
-
-| Action | Protocol |
-|--------|----------|
-| Logging in | Kerberos |
-| Querying AD | LDAP |
-| Checking group membership | LDAP |
-| Getting access to a service | Kerberos |
-| Updating user attributes | LDAP |
+OUs can be nested and reflect:
+- Departments  
+- Locations  
+- Security boundaries  
+- Function-based structures  
 
 ---
 
-## 4. Weaknesses & Security Notes
+## 2. Group Policy Objects (GPOs)
+GPOs provide centralized configuration management.
 
-### LDAP Weaknesses
-- Clear-text if not using LDAPS  
-- Susceptible to relaying if poorly configured  
-
-### Kerberos Weaknesses
-- Time drift breaks auth  
-- Kerberoasting (service tickets with weak keys)  
-- AS-REP roasting (if pre-auth disabled)
+### GPOs Manage:
+- Security policies  
+- Password policies  
+- Software restrictions  
+- Mapping drives/printers  
+- Firewall rules  
+- Login scripts  
+- Hardening configurations  
 
 ---
 
-## 5. Summary
-- **LDAP = directory queries & modifications**  
-- **Kerberos = secure authentication**  
-- Both are deeply integrated within AD operations  
+## 3. GPO Processing Order
+Order of application (last wins):
+1. **Local Policy**  
+2. **Site Policy**  
+3. **Domain Policy**  
+4. **OU Policy**  
+5. **Nested OUs**
+
+---
+
+## 4. Linking OUs and GPOs
+GPOs **do not apply** unless linked to:
+- Site  
+- Domain  
+- OU  
+
+Users inherit GPOs based on their **OU location**.
+
+---
+
+## 5. Security Considerations
+- Misconfigured OUs allow privilege escalation  
+- GPO delegation can expose admin privileges  
+- Unsecured SYSVOL exposes policy data  
+
+---
+
+## 6. Why It Matters for Red/Blue Teams
+- Attackers abuse GPO rights to push malware/payloads  
+- Defenders use GPOs for hardening and baselining  
