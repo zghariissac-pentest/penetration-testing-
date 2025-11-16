@@ -1,38 +1,81 @@
+# Active Directory Database & Replication
 
-# Active Directory Database and Replication
+## 1. What Is the AD Database?
+Active Directory stores all directory information in a central database called **NTDS.dit**.  
+It contains:
+- User accounts  
+- Computer accounts  
+- Groups  
+- Password hashes (protected)  
+- GPO links  
+- Domain and forest configuration metadata  
 
-## 1. The AD Database (NTDS.dit)
-- What the database stores  
-- Structure of directory data  
-- How objects and attributes are organized  
-- Why NTDS.dit is critical  
+### Key Files
+| File | Purpose |
+|------|---------|
+| **NTDS.dit** | Main AD database |
+| **edb.log** | Transaction log file |
+| **edb.chk** | Checkpoint file |
+| **SYSVOL**  | Stores GPOs & logon scripts |
 
-## 2. Logical vs Physical Partitions
-- Schema partition  
-- Configuration partition  
-- Domain partition  
-- Application partitions  
+---
 
-## 3. SYSVOL
-- Purpose of SYSVOL  
-- What it stores (scripts, GPO data)  
-- Replication via DFS-R  
+## 2. How Replication Works
+Replication ensures all Domain Controllers have the same updated directory data.
 
-## 4. Replication Model
-- Multi-master replication  
-- How DCs synchronize changes  
-- Update sequence numbers (USN)  
-- Replication metadata  
+### Two Types of Replication
+1. **Intra-site replication (within same site)**
+   - Fast  
+   - Uses change notifications  
+   - Optimized for LAN
 
-## 5. Replication Topology
-- Sites and site links  
-- Intra-site vs inter-site replication  
-- Bridgehead servers  
+2. **Inter-site replication (between sites)**
+   - Scheduled  
+   - Compressed  
+   - Designed for WAN
 
-## 6. Replication Conflicts
-- How conflicts occur  
-- Last Writer Wins model  
-- Conflict resolution mechanism  
+---
 
-## Summary
-Short recap of how AD stores data and keeps every Domain Controller synchronized.
+## 3. Replication Topology
+Active Directory uses:
+- **KCC (Knowledge Consistency Checker)** to build connection objects  
+- **ISTG (Intersite Topology Generator)** for inter-site links  
+
+### Replication Models
+- **Multi-master replication**:  
+  Any DC can update the database.
+- **Last Writer Wins**:  
+  Timestamp decides conflicts.
+
+---
+
+## 4. SYSVOL Replication
+SYSVOL is replicated using:
+- **DFSR (modern)**  
+- **FRS (legacy / deprecated)**
+
+SYSVOL contains:
+- Group Policy Templates  
+- Logon scripts  
+
+---
+
+## 5. Common AD Replication Issues
+- USN rollback  
+- Lingering objects  
+- Time drift between DCs  
+- DFSR backlog  
+- Broken site links
+
+---
+
+## 6. Why Replication Matters for Pentesting
+- Understanding replication helps identify:
+  - Attack propagation speed  
+  - Where credentials & policies live  
+  - Persistence opportunities  
+  - Impact of misconfigured sites
+
+---
+
+*This file summarizes how AD stores and synchronizes directory data, giving you the foundations needed for more advanced AD security research. check the other subjects *
