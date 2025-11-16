@@ -1,35 +1,66 @@
+# LDAP vs Kerberos
 
-# Organizational Units (OUs) and Group Policy Objects (GPOs)
+Active Directory authentication and directory queries rely mainly on **LDAP** and **Kerberos**.  
+They solve different problems.
 
-## 1. What OUs Are
-- Logical containers  
-- Organizing users, computers, and groups  
-- Delegation boundaries  
+---
 
-## 2. OU Design
-- Function-based OUs  
-- Department-based OUs  
-- Computer vs user separation  
+## 1. What Is LDAP?
+LDAP = Lightweight Directory Access Protocol  
+Used for:
+- Querying directory objects (users, groups, OUs…)  
+- Reading attributes  
+- Writing changes (if authorized)  
 
-## 3. What GPOs Are
-- Configuration engine of AD  
-- Settings applied to users and computers  
+### LDAP Modes
+| Mode | Port | Encryption |
+|------|------|-----------|
+| LDAP | 389 | None |
+| LDAPS | 636 | TLS/SSL |
 
-## 4. How GPOs Work
-- GPO links  
-- Inheritance  
-- Precedence  
+---
 
-## 5. GPO Processing Order
-- Local  
-- Site  
-- Domain  
-- OU (LSDOU model)  
+## 2. What Is Kerberos?
+Kerberos is the **default authentication protocol** in AD.  
+Provides:
+- Mutual authentication  
+- Ticket-based access  
+- Time-sensitive security (5-minute skew rule)
 
-## 6. Managing GPOs Safely
-- Versioning  
-- Testing  
-- Avoiding GPO sprawl  
+### Kerberos Components
+- **KDC** (Key Distribution Center)  
+- **AS** (Authentication Service)  
+- **TGS** (Ticket Granting Service)  
+- **TGT** (Ticket Granting Ticket)  
 
-## Summary
-High-level view of how OUs help structure AD and how GPOs enforce policies.
+---
+
+## 3. When AD Uses LDAP vs Kerberos
+
+| Action | Protocol |
+|--------|----------|
+| Logging in | Kerberos |
+| Querying AD | LDAP |
+| Checking group membership | LDAP |
+| Getting access to a service | Kerberos |
+| Updating user attributes | LDAP |
+
+---
+
+## 4. Weaknesses & Security Notes
+
+### LDAP Weaknesses
+- Clear-text if not using LDAPS  
+- Susceptible to relaying if poorly configured  
+
+### Kerberos Weaknesses
+- Time drift breaks auth  
+- Kerberoasting (service tickets with weak keys)  
+- AS-REP roasting (if pre-auth disabled)
+
+---
+
+## 5. Summary
+- **LDAP = directory queries & modifications**  
+- **Kerberos = secure authentication**  
+- Both are deeply integrated within AD operations  
