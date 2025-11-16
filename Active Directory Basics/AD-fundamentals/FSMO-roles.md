@@ -1,36 +1,61 @@
-
 # FSMO Roles (Flexible Single Master Operations)
 
-## 1. Why FSMO Roles Exist
-- Multi-master replication limitations  
-- Tasks requiring a single authoritative DC  
+Although AD uses multi-master replication, certain operations require a **single authoritative DC**.  
+These are the **FSMO roles**.
 
-## 2. Forest-Level Roles
-### Schema Master
-- Controls schema changes  
+---
 
-### Domain Naming Master
-- Manages domain additions/removals  
+## 1. Forest-Wide FSMO Roles (2)
 
-## 3. Domain-Level Roles
-### PDC Emulator
-- Time synchronization  
-- Password updates  
-- Backward compatibility  
+### ✔ Schema Master
+- Maintains and updates the AD schema  
+- Required for adding new object classes/attributes  
+- Only one per forest
 
-### RID Master
-- Allocates RID pools to DCs  
+### ✔ Domain Naming Master
+- Manages domain creation/deletion in the forest  
+- Controls cross-domain namespace integrity  
 
-### Infrastructure Master
-- Updates cross-domain group references  
+---
 
-## 4. When FSMO Issues Occur
-- Role holder unavailable  
-- Transfers vs seizures  
+## 2. Domain-Wide FSMO Roles (3)
 
-## 5. Best Practices
-- Placement of roles  
-- Monitoring and health checks  
+### ✔ RID Master
+- Allocates **Relative Identifiers** for SIDs  
+- Ensures unique security identifiers  
+- Required for creating new users/computers
 
-## Summary
-Quick recap of each role and why they are critical to AD.
+### ✔ PDC Emulator
+- Time synchronization authority  
+- Processes password changes  
+- Fallback authentication role  
+- Legacy NT4 compatibility  
+- Most critical day-to-day role
+
+### ✔ Infrastructure Master
+- Updates cross-domain object references  
+- Ensures correct membership visibility  
+
+---
+
+## 3. Why FSMO Roles Matter
+- Misplacing FSMO roles can break:
+  - Replication  
+  - Time sync  
+  - Domain operations  
+  - User creation  
+- Attackers often target the **PDC Emulator** for:
+  - Password harvesting  
+  - Time manipulation  
+  - GPO injection relevance  
+
+---
+
+## 4. Best Practice Placement
+- Keep **PDC Emulator** on a strong, stable DC  
+- Keep **RID Master** isolated and monitored  
+- Ensure **Schema Master** is protected (rarely used)
+
+---
+
+*These roles ensure consistent, stable domain operations even in large, distributed AD environments.*
