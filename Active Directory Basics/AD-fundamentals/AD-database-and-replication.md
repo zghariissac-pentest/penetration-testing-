@@ -78,4 +78,4 @@ SYSVOL contains:
 
 ---
 
-*This file summarizes how AD stores and synchronizes directory data, giving you the foundations needed for more advanced AD security research. check the other subjects *
+*This file summarizes how AD stores and synchronizes directory data, giving you the foundations needed for more advanced AD security research. check the other subjects*
