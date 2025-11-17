@@ -1,4 +1,4 @@
-# Active Directory Attack Surface — Overview
+# Active Directory Attack Surface Overview
 
 ## 1. Introduction
 Active Directory creates one of the largest attack surfaces inside enterprise networks.  
