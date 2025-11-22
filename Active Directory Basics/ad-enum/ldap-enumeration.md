@@ -157,16 +157,109 @@ Look for userAccountControl flags or msDS-AllowedToActOnBehalfOfOtherIdentity an
 ## 9.6 LDAPS and Channel Binding
 If LDAPS is available, prefer it. Many modern environments require LDAP signing & channel binding to mitigate relay and MITM.
 
+# 10 Detection, logging & SIEM rules
 
+Events to monitor
 
+LDAP simple bind (Event ID 2889 / 1644 depending on platform) — note weak binds.
 
-
-
-
-
-
-
-
+Kerberos TGS, AS requests for unusual SPNs (Event IDs 4769, 4768).
+Unusual number of LDAP queries from a single account or host (possible reconnaissance).
+SharpHound or PowerView command indicators (script execution logs, Process Creation events).
+Suspicious WinRM/WMI usage for remote enumeration (Event IDs related to remote management).
+Example SIEM detection ideas
+Alert on accounts that perform > X LDAP searches/minute from a single source.
+Alert on requests for many servicePrincipalName attributes across many accounts.
+Alert on use of built-in enumeration tools on endpoints (powershell.exe invoking Invoke-Object modules or unusual encoded commands).
+Track Get-ADUser and Get-ADComputer via PowerShell logging (Module Logging / Script Block Logging).
+Event sources
+Domain Controller Security logs (LDAP/AD events)
+PowerShell Logging (Module Logging, ScriptBlockLogging)
+Sysmon (process command lines)
+Windows Event Forwarding to SIEM
 ful of impact on domain controllers (avoid aggressive scans during business hours).
 
+# 11  Remediation & hardening guidance
+
+Access & ACLs
+
+Harden ACLs on sensitive objects (limit who can read msDS-AllowedToActOnBehalfOfOtherIdentity, servicePrincipalName, and msDS-KeyVersionNumber).
+
+Reduce Read access to attribute sets for non-privileged accounts where feasible.
+
+Kerberos & SPN hardening
+
+Remove SPNs from non-service accounts when possible.
+
+Avoid service accounts running as domain admin.
+
+LDAP configuration
+
+Enforce LDAP signing & require channel binding (Microsoft guidance).
+
+Disable anonymous LDAP binds.
+
+Require LDAPS for remote management where possible.
+
+Monitoring
+
+Enable detailed PowerShell logging, Sysmon, and forward to SIEM.
+
+Monitor for mass enumeration patterns.
+
+Least privilege
+
+Apply tiered access model; service accounts should be constrained and monitored.
 Keep logs of actions for auditability.
+
+# Quick-check enumeration checklist
+```
+[ ] Discover domain controllers (DNS SRV)
+[ ] Enumerate basic domain info (domain functional level, naming contexts)
+[ ] Dump all users (sAMAccountName, UPN, mail, whenCreated)
+[ ] Dump all computers (OS, lastLogon)
+[ ] Enumerate groups, privileged groups (Domain Admins, Enterprise Admins)
+[ ] Find SPNs and service accounts
+[ ] Search for accounts with no pre-auth (AS-REP roastable)
+[ ] Collect ACLs for sensitive containers (Domain, Configuration, Protected Groups)
+[ ] Collect data for BloodHound (SharpHound / Invoke-BloodHound)
+[ ] Export outputs to CSV/JSON and document findings
+[ ] Configure detection rules for excessive LDAP queries & PowerShell usage
+```
+don't ask me why i made it as a code , it's just look good.
+
+# 13 Additional resources & references
+
+BloodHound / SharpHound official docs
+PowerView / PowerSploit docs
+Microsoft docs: LDAP signing & channel binding guidance
+Impacket repository (GetNPUsers, GetUserSPNs tools)
+LDAP RFCs (RFC 4510/4511/4512/4515)
+
+# Appendix: example scripts
+## 14.1 Simple ldapsearch wrapper (bash)
+```
+#!/usr/bin/env bash
+# simple-ldap-enum.sh: basic queries and CSV output
+DC="$1"    # e.g. dc.corp.local
+BASE="$2"  # e.g. DC=corp,DC=local
+
+ldapsearch -x -H ldap://$DC -b "$BASE" "(&(objectCategory=person)(objectClass=user))" sAMAccountName userPrincipalName mail displayName | \
+  awk 'BEGIN {FS=": "; OFS=","; print "sAMAccountName,userPrincipalName,mail,displayName"} \
+       /^sAMAccountName:/ {u=$2} /^userPrincipalName:/ {p=$2} /^mail:/ {m=$2} /^displayName:/ {d=$2; print u,p,m,d}' > users.csv
+echo "done -> users.csv"
+```
+## 14.2 PowerShell: export all users to CSV
+```
+# Export-ADUsers.ps1
+Import-Module ActiveDirectory
+Get-ADUser -Filter * -Properties sAMAccountName,UserPrincipalName,mail,MemberOf,whenCreated |
+  Select-Object Name,sAMAccountName,UserPrincipalName,mail,whenCreated |
+  Export-Csv -Path .\ADUsers.csv -NoTypeInformation
+```
+
+
+
+
+
+
